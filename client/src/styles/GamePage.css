@@ -1,0 +1,285 @@
+.game-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.game-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 960px;
+  justify-content: space-between;
+}
+
+.game-page h1 {
+  margin: 0;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-back:hover {
+  background: #c82333;
+}
+
+.boards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 960px;
+}
+
+.board {
+  background: rgba(0, 0, 0, 0.65);
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.board-header {
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 2px 2px 4px #000;
+  margin-bottom: 0.75rem;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 32px);
+  gap: 6px;
+  justify-content: center;
+}
+
+.board-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  padding: 0;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.board-cell.cell-ship.ship-0 {
+  background: #e63946;
+}
+
+.board-cell.cell-ship.ship-1 {
+  background: #f4a261;
+}
+
+.board-cell.cell-ship.ship-2 {
+  background: #2a9d8f;
+}
+
+.board-cell.cell-ship.ship-3 {
+  background: #457b9d;
+}
+
+.board-cell.cell-ship.ship-4 {
+  background: #9b5de5;
+}
+
+.opponent-board .board-cell:hover {
+  background: #f0f0f0;
+}
+
+.cell-crosshair {
+  position: absolute;
+  color: #e63946;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  font-size: 20px;
+  pointer-events: none;
+}
+
+/* Crosshair only on opponent board hover */
+.opponent-board .board-cell:hover .cell-crosshair {
+  opacity: 1;
+}
+
+/* Hit - fire icon */
+.board-cell.cell-hit {
+  background: #ff6b35;
+}
+
+/* Sunk - show ship color with skull */
+.board-cell.cell-sunk.ship-0 {
+  background: #e63946;
+}
+.board-cell.cell-sunk.ship-1 {
+  background: #f4a261;
+}
+.board-cell.cell-sunk.ship-2 {
+  background: #2a9d8f;
+}
+.board-cell.cell-sunk.ship-3 {
+  background: #457b9d;
+}
+.board-cell.cell-sunk.ship-4 {
+  background: #9b5de5;
+}
+
+/* Miss */
+.board-cell.cell-miss {
+  background: #e9ecef;
+}
+
+/* Cell icons */
+.cell-icon {
+  font-size: 16px;
+  z-index: 1;
+}
+
+.cell-fire {
+  color: #fff;
+  filter: drop-shadow(0 0 2px #ff0000);
+}
+
+.cell-skull {
+  color: #1a1a1a;
+  filter: drop-shadow(0 0 1px #fff);
+}
+
+.cell-miss-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6c757d;
+}
+
+/* Disabled board */
+.opponent-board.disabled .board-cell {
+  cursor: not-allowed;
+}
+
+.opponent-board.disabled .board-cell:hover {
+  background: #fff;
+}
+
+.opponent-board.disabled .board-cell:hover .cell-crosshair {
+  opacity: 0;
+}
+
+/* Game status (turn indicator + timer) */
+.game-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Turn indicator */
+.turn-indicator {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.turn-indicator.my-turn {
+  background: #2a9d8f;
+  color: white;
+}
+
+.turn-indicator.opponent-turn {
+  background: #6c757d;
+  color: white;
+}
+
+/* Timer */
+.timer {
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1.3rem;
+  background: #1a1a1a;
+  color: #fff;
+  min-width: 80px;
+  text-align: center;
+}
+
+.timer.timer-warning {
+  background: #dc3545;
+  animation: timer-pulse 0.5s infinite alternate;
+}
+
+@keyframes timer-pulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
+}
+
+/* Game over */
+.game-over {
+  background: rgba(0, 0, 0, 0.8);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.game-over h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.btn-play-again {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background: #2a9d8f;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-play-again:hover {
+  background: #21867a;
+}
+
+/* AI Banter Bubble */
+.banter-bubble {
+  position: fixed;
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 24px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: banter-pop 0.3s ease-out;
+  z-index: 1000;
+  max-width: 90%;
+  text-align: center;
+}
+
+@keyframes banter-pop {
+  0% {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}

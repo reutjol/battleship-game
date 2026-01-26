@@ -1,0 +1,21 @@
+.App {
+  min-height: 100vh;
+  height: 100%;
+  overflow-y: hidden;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("../assets/bg.png");
+  display: flex;
+  justify-content: center;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.5rem;
+  color: white;
+}
+

@@ -1,0 +1,49 @@
+.app-header {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-user-info {
+  color: #000000;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px #7a7a7a;
+  font-family: "Shadows Into Light", cursive;
+  font-size: 1.6rem;
+  background: rgba(255, 255, 255, 0.459);
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+}
+
+.btn-logout-nav {
+  padding: 0.5rem 1rem;
+  background: #e63946;
+  border: 1px solid #e63946;
+  color: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout-nav:hover {
+  background: #c82333;
+}
+
+.btn-back-nav {
+  padding: 0.5rem 1rem;
+  background: #457b9d;
+  border: none;
+  color: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back-nav:hover {
+  background: #3a6a8a;
+}

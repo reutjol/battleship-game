@@ -1,0 +1,139 @@
+.lobby-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.lobby-page h1 {
+  margin-bottom: 2rem;
+}
+
+.lobby-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.lobby-section {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.lobby-section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.lobby-divider {
+  text-align: center;
+  color: #888;
+  font-size: 1rem;
+}
+
+.btn-create,
+.btn-join {
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.btn-create {
+  background: #2a9d8f;
+  color: white;
+  width: 100%;
+}
+
+.btn-create:hover {
+  background: #21867a;
+  transform: scale(1.02);
+}
+
+.btn-join {
+  background: #457b9d;
+  color: white;
+  margin-top: 0.5rem;
+}
+
+.btn-join:hover {
+  background: #3a6a8a;
+  transform: scale(1.02);
+}
+
+.input-code {
+  width: 90%;
+  padding: 0.8rem;
+  font-size: 1.2rem;
+  text-align: center;
+  border: 2px solid #457b9d;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.5rem;
+  text-transform: uppercase;
+}
+
+.input-code:focus {
+  outline: none;
+  border-color: #2a9d8f;
+}
+
+.error-message {
+  color: #e63946;
+  margin-top: 0.5rem;
+}
+
+.waiting-room {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.waiting-room h2 {
+  margin-bottom: 1.5rem;
+}
+
+.room-code {
+  margin: 1rem 0;
+}
+
+.room-code .code {
+  display: block;
+  font-size: 3rem;
+  font-weight: bold;
+  letter-spacing: 0.5rem;
+  color: #2a9d8f;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.hint {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.btn-cancel {
+  margin-top: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #c82333;
+}
