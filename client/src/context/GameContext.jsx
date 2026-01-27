@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import socket from '../services/socket'
+import { useSocket } from '../hooks'
 
 const GameContext = createContext()
 
 export const useGame = () => useContext(GameContext)
 
 export const GameProvider = ({ children }) => {
+  const { isConnected, emit } = useSocket()
   const [roomCode, setRoomCode] = useState(null)
   const [playerId, setPlayerId] = useState(null)
   const [playerNumber, setPlayerNumber] = useState(null)
@@ -17,6 +19,8 @@ export const GameProvider = ({ children }) => {
   const [error, setError] = useState(null)
   const [banter, setBanter] = useState(null)
   const [timeLeft, setTimeLeft] = useState(null)
+  const [isAIGame, setIsAIGame] = useState(false)
+  const [aiThinking, setAIThinking] = useState(false)
   const timerRef = useRef(null)
 
   useEffect(() => {
@@ -26,7 +30,8 @@ export const GameProvider = ({ children }) => {
       setPlayerId(data.playerId)
       setPlayerNumber(data.playerNumber)
       setMyBoard(data.board)
-      setGamePhase('waiting')
+      setIsAIGame(data.isAIGame || false)
+      setGamePhase(data.isAIGame ? 'playing' : 'waiting')
       initOpponentBoard()
     })
 
@@ -165,6 +170,12 @@ export const GameProvider = ({ children }) => {
       setGamePhase('finished')
     })
 
+    // AI is thinking
+    socket.on('ai-thinking', (data) => {
+      setAIThinking(true)
+      setTimeout(() => setAIThinking(false), data.delay)
+    })
+
     return () => {
       socket.off('game-created')
       socket.off('game-joined')
@@ -175,6 +186,7 @@ export const GameProvider = ({ children }) => {
       socket.off('banter')
       socket.off('turn-timer-start')
       socket.off('game-over-timeout')
+      socket.off('ai-thinking')
       if (timerRef.current) {
         clearInterval(timerRef.current)
       }
@@ -193,22 +205,26 @@ export const GameProvider = ({ children }) => {
   }
 
   const createGame = (userId) => {
-    socket.emit('create-game', { userId })
+    emit('create-game', { userId })
+  }
+
+  const createAIGame = (userId) => {
+    emit('create-ai-game', { userId })
   }
 
   const joinGame = (code, userId) => {
     setError(null)
-    socket.emit('join-game', { roomCode: code, userId })
+    emit('join-game', { roomCode: code, userId })
   }
 
   const attack = (row, col) => {
     if (!isMyTurn || gamePhase !== 'playing') return
-    socket.emit('attack', { roomCode, row, col })
+    emit('attack', { roomCode, row, col })
   }
 
   const leaveGame = () => {
     if (roomCode) {
-      socket.emit('leave-game', { roomCode })
+      emit('leave-game', { roomCode })
     }
     resetGame()
   }
@@ -224,6 +240,8 @@ export const GameProvider = ({ children }) => {
     setWinner(null)
     setError(null)
     setTimeLeft(null)
+    setIsAIGame(false)
+    setAIThinking(false)
     if (timerRef.current) {
       clearInterval(timerRef.current)
     }
@@ -242,7 +260,11 @@ export const GameProvider = ({ children }) => {
       error,
       banter,
       timeLeft,
+      isConnected,
+      isAIGame,
+      aiThinking,
       createGame,
+      createAIGame,
       joinGame,
       attack,
       leaveGame,

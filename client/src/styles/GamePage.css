@@ -21,17 +21,20 @@
 }
 
 .btn-back {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
   padding: 0.5rem 1rem;
-  background: #dc3545;
-  color: white;
+  background: #457b9d;
+  color: #ffffff;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  transition: all 0.2s;
 }
 
 .btn-back:hover {
-  background: #c82333;
+  background: #3a6a8a;
 }
 
 .boards {
@@ -282,4 +285,27 @@
     transform: translateX(-50%) scale(1);
     opacity: 1;
   }
+}
+
+/* AI Badge */
+.ai-badge {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 1.5rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  text-shadow: 0 0 0;
+  font-weight:100;
+}
+
+/* AI Thinking animation */
+.turn-indicator.ai-thinking {
+  animation: ai-pulse 1s infinite;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

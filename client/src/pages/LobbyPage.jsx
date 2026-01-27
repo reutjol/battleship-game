@@ -7,7 +7,7 @@ import '../styles/LobbyPage.css'
 
 const LobbyPage = () => {
   const [joinCode, setJoinCode] = useState('')
-  const { roomCode, gamePhase, error, createGame, joinGame, leaveGame } = useGame()
+  const { roomCode, gamePhase, error, isConnected, createGame, joinGame, leaveGame } = useGame()
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -33,7 +33,13 @@ const LobbyPage = () => {
       <Header showBackButton={true} backTo="/" />
       <h1>Battleship Online</h1>
 
-      {gamePhase === 'lobby' && (
+      {!isConnected && (
+        <div className="connection-error">
+          Server disconnected. Trying to reconnect...
+        </div>
+      )}
+
+      {gamePhase === 'lobby' && isConnected && (
         <div className="lobby-options">
           <div className="lobby-section">
             <h2>Create New Game</h2>

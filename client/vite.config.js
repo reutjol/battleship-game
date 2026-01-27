@@ -10,5 +10,9 @@ export default defineConfig({
       host: 'localhost',
       port: 5173,
     }
+  },
+  test: {
+    environment: 'node',
+    globals: true
   }
 })

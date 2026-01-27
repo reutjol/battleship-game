@@ -1,5 +1,9 @@
 const User = require('../models/User')
 const gameManager = require('../gameManager')
+const aiOpponent = require('../aiOpponent')
+
+// AI thinking delay in milliseconds (for realistic feel)
+const AI_THINK_DELAY = 1000
 
 // Track miss streaks per player
 const missStreaks = new Map()
@@ -84,7 +88,7 @@ async function fetchBanter(event, streakCount = 0) {
     'win': 'Player won the game - celebrate!',
     'lose': 'Player lost the game - be encouraging',
     'sunk': 'Player sunk an enemy ship - excited reaction',
-    'miss_streak': `Player missed ${streakCount} times in a row - give funny motivation to keep trying`
+    'miss_streak': `Player missed ${streakCount} times in a row - give funny motivation`
   }
 
   const prompt = `You write short, friendly game banter for a battleship game.
@@ -146,8 +150,7 @@ function handleBanterAfterAttack(socket, roomCode, result) {
   let streakCount = 0
 
   if (result.winner) {
-    banterEvent = result.winner === playerId ? 'win' : 'lose'
-    shouldTriggerBanter = true
+    // No banter for win/lose to save API calls
     missStreaks.delete(playerId)
   } else if (result.sunk) {
     banterEvent = 'sunk'
@@ -160,7 +163,8 @@ function handleBanterAfterAttack(socket, roomCode, result) {
     missStreaks.set(playerId, currentStreak)
     streakCount = currentStreak
 
-    if (currentStreak >= 5) {
+    // Changed from 5 to 10 misses to reduce API calls
+    if (currentStreak >= 10) {
       banterEvent = 'miss_streak'
       shouldTriggerBanter = true
       missStreaks.set(playerId, 0)
@@ -188,6 +192,80 @@ function handleBanterAfterAttack(socket, roomCode, result) {
   }
 }
 
+// Schedule AI turn with delay for realistic gameplay
+function scheduleAITurn(socketIO, roomCode, humanPlayerId) {
+  const game = gameManager.games.get(roomCode)
+  if (!game || !game.isAIGame) return
+
+  // Notify client that AI is "thinking"
+  socketIO.to(roomCode).emit('ai-thinking', { delay: AI_THINK_DELAY })
+
+  setTimeout(() => {
+    executeAITurn(socketIO, roomCode, humanPlayerId)
+  }, AI_THINK_DELAY)
+}
+
+// Execute AI's turn
+function executeAITurn(socketIO, roomCode, humanPlayerId) {
+  const game = gameManager.games.get(roomCode)
+  if (!game || !game.isAIGame) return
+  if (game.currentTurn !== gameManager.AI_PLAYER_ID) return
+
+  const humanPlayer = game.players.find(p => p.id === humanPlayerId)
+  if (!humanPlayer) return
+
+  // Get AI move
+  const move = aiOpponent.getAIMove(roomCode, humanPlayer.board)
+  if (!move) {
+    console.error('AI could not find a valid move')
+    return
+  }
+
+  console.log(`AI attacking: ${move.row}, ${move.col}`)
+
+  // Process AI attack
+  const result = gameManager.processAttack(roomCode, gameManager.AI_PLAYER_ID, move.row, move.col)
+
+  if (result.error) {
+    console.error('AI attack error:', result.error)
+    return
+  }
+
+  // Update AI targeting state
+  aiOpponent.updateAIState(roomCode, move.row, move.col, result)
+
+  // Broadcast result
+  socketIO.to(roomCode).emit('attack-result', {
+    attacker: gameManager.AI_PLAYER_ID,
+    row: move.row,
+    col: move.col,
+    hit: result.hit,
+    sunk: result.sunk,
+    shipIndex: result.shipIndex,
+    sunkCells: result.sunkCells,
+    nextTurn: result.nextTurn,
+    winner: result.winner,
+    isAIAttack: true
+  })
+
+  if (result.winner) {
+    console.log('AI game winner:', result.winner)
+    clearTurnTimer(roomCode)
+    aiOpponent.clearAIState(roomCode)
+
+    // Update human stats if human won
+    if (result.winner === humanPlayerId) {
+      updateWins(humanPlayerId)
+    }
+  } else if (result.nextTurn === gameManager.AI_PLAYER_ID) {
+    // AI gets another turn (hit)
+    scheduleAITurn(socketIO, roomCode, humanPlayerId)
+  } else {
+    // Human's turn
+    startTurnTimer(roomCode, humanPlayerId)
+  }
+}
+
 module.exports = {
   init,
   startTurnTimer,
@@ -196,5 +274,7 @@ module.exports = {
   setUserMapping,
   removeUserMapping,
   fetchBanter,
-  handleBanterAfterAttack
+  handleBanterAfterAttack,
+  scheduleAITurn,
+  executeAITurn
 }

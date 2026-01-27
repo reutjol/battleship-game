@@ -4,6 +4,7 @@ import HomeScreen from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import GamePage from './pages/GamePage';
 import LobbyPage from './pages/LobbyPage';
+import NotFound from "./pages/NotFoundPage";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { GameProvider } from "./context/GameContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -43,6 +44,7 @@ function AppRoutes() {
             <GamePage />
           </ProtectedRoute>
         } />
+          <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );

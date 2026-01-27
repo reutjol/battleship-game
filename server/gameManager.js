@@ -3,6 +3,9 @@ const { buildBoardWithShips, processAttack, checkWinner } = require('./gameLogic
 const games = new Map()
 const playerToGame = new Map()
 
+// Constant ID for AI player
+const AI_PLAYER_ID = 'AI_OPPONENT'
+
 // Generate short room code (4 characters)
 const generateRoomCode = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -76,6 +79,53 @@ const joinGame = (playerId, roomCode) => {
   }
 }
 
+// Create game against AI
+const createAIGame = (playerId) => {
+  let roomCode = generateRoomCode()
+
+  // Ensure unique code
+  while (games.has(roomCode)) {
+    roomCode = generateRoomCode()
+  }
+
+  const playerData = buildBoardWithShips()
+  const aiData = buildBoardWithShips()
+
+  games.set(roomCode, {
+    players: [
+      { id: playerId, board: playerData.board, ships: playerData.ships },
+      { id: AI_PLAYER_ID, board: aiData.board, ships: aiData.ships }
+    ],
+    currentTurn: playerId, // Human always goes first
+    isAIGame: true
+  })
+
+  playerToGame.set(playerId, roomCode)
+
+  return {
+    roomCode,
+    playerNumber: 1,
+    board: playerData.board,
+    gameStarted: true,
+    currentTurn: playerId,
+    isAIGame: true
+  }
+}
+
+// Check if game is an AI game
+const isAIGame = (roomCode) => {
+  const game = games.get(roomCode)
+  return game?.isAIGame === true
+}
+
+// Get player's board (for AI to attack)
+const getPlayerBoard = (roomCode, playerId) => {
+  const game = games.get(roomCode)
+  if (!game) return null
+  const player = game.players.find(p => p.id === playerId)
+  return player?.board
+}
+
 const processGameAttack = (roomCode, attackerId, row, col) => {
   const game = games.get(roomCode)
 
@@ -127,8 +177,12 @@ const handleDisconnect = (playerId) => {
 
 module.exports = {
   createGame,
+  createAIGame,
   joinGame,
   processAttack: processGameAttack,
   handleDisconnect,
-  games
+  isAIGame,
+  getPlayerBoard,
+  games,
+  AI_PLAYER_ID
 }

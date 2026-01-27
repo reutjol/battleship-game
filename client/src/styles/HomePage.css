@@ -58,5 +58,162 @@ h2 {
   font-weight: bold;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wins-badge:hover {
+  background: rgba(0, 0, 0, 0.85);
+  transform: scale(1.05);
+}
+
+/* Leaderboard Modal */
+.leaderboard-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.leaderboard-modal {
+  background: linear-gradient(135deg, #1a3040, #0c1c25);
+  border-radius: 16px;
+  padding: 2rem;
+  min-width: 350px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.leaderboard-modal h2 {
+  font-family: 'Luckiest Guy';
+  font-size: 2rem;
+  color: #ffd700;
+  margin: 0 0 1.5rem 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.leaderboard-modal .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.leaderboard-modal .close-btn:hover {
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+
+.loading-text,
+.no-data-text {
+  color: #aaa;
+  font-size: 1.2rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+
+.leaderboard-table th {
+  color: #ffd700;
+  font-family: 'Luckiest Guy';
+  font-size: 1rem;
+  border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+  padding-left: 2rem;
+}
+
+.leaderboard-table td {
+  color: #fff;
+  font-family: "Shadows Into Light", cursive;
+  font-size: 1.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.leaderboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard-table .rank {
+  font-size: 1.5rem;
+  text-align: center;
+  width: 50px;
+}
+
+.leaderboard-table .player-wins {
+  color: #ffd700;
+  font-weight: bold;
+  text-align: center;
+}
+
+.leaderboard-table .current-user {
+  background: rgba(255, 215, 0, 0.15);
+}
+
+.leaderboard-table .current-user td {
+  color: #ffd700;
+}
+
+.game-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+}
+
+.home-page .btn-play-ai,
+.home-page .btn-play-friends {
+  font-family: 'Luckiest Guy';
+  font-size: 1.5rem;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.home-page .btn-play-ai {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.home-page .btn-play-ai:hover {
+  background: linear-gradient(135deg, #a66bbe, #9b59b6);
+}
+
+.home-page .btn-play-friends {
+  background-color: #0c1c25;
+}
+
+.home-page .btn-play-friends:hover {
+  background-color: #1a3040;
 }
 

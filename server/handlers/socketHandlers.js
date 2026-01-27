@@ -1,5 +1,6 @@
 const gameManager = require('../gameManager')
 const gameService = require('../services/gameService')
+const aiOpponent = require('../aiOpponent')
 
 function registerHandlers(io, socket) {
   console.log('Player connected:', socket.id)
@@ -19,6 +20,33 @@ function registerHandlers(io, socket) {
     })
 
     console.log(`Room created: ${result.roomCode}`)
+  })
+
+  // Create AI game
+  socket.on('create-ai-game', ({ userId }) => {
+    const result = gameManager.createAIGame(socket.id)
+
+    gameService.setUserMapping(socket.id, userId)
+
+    socket.join(result.roomCode)
+    socket.emit('game-created', {
+      roomCode: result.roomCode,
+      playerId: socket.id,
+      playerNumber: result.playerNumber,
+      board: result.board,
+      isAIGame: true
+    })
+
+    // Game starts immediately for AI games
+    socket.emit('game-start', {
+      currentTurn: result.currentTurn,
+      isAIGame: true
+    })
+
+    // Start turn timer for human player
+    gameService.startTurnTimer(result.roomCode, result.currentTurn)
+
+    console.log(`AI game created: ${result.roomCode}`)
   })
 
   // Join existing game
@@ -78,8 +106,15 @@ function registerHandlers(io, socket) {
       console.log('Winner:', result.winner)
       gameService.clearTurnTimer(roomCode)
       gameService.updateWins(result.winner)
+      aiOpponent.clearAIState(roomCode)
     } else if (result.nextTurn) {
-      gameService.startTurnTimer(roomCode, result.nextTurn)
+      // Check if it's AI's turn
+      if (gameManager.isAIGame(roomCode) && result.nextTurn === gameManager.AI_PLAYER_ID) {
+        // Schedule AI turn
+        gameService.scheduleAITurn(io, roomCode, socket.id)
+      } else {
+        gameService.startTurnTimer(roomCode, result.nextTurn)
+      }
     }
 
     // Handle banter
@@ -90,6 +125,7 @@ function registerHandlers(io, socket) {
   socket.on('leave-game', ({ roomCode }) => {
     console.log('Player left game:', socket.id, 'room:', roomCode)
     gameService.clearTurnTimer(roomCode)
+    aiOpponent.clearAIState(roomCode)
     socket.to(roomCode).emit('opponent-disconnected')
     socket.leave(roomCode)
     gameManager.handleDisconnect(socket.id)
@@ -103,6 +139,7 @@ function registerHandlers(io, socket) {
 
     if (roomCode) {
       gameService.clearTurnTimer(roomCode)
+      aiOpponent.clearAIState(roomCode)
       io.to(roomCode).emit('opponent-disconnected')
     }
     gameService.removeUserMapping(socket.id)

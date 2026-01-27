@@ -1,31 +1,37 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { authAPI, setToken, clearToken } from '../services/api'
+import { createContext, useContext, useState, useEffect } from 'react'
+import { authAPI } from '../services/api'
+import { useLocalStorage } from '../hooks'
 
 const AuthContext = createContext()
 
 export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) => {
+  const [, setToken, removeToken] = useLocalStorage('token', null)
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Check for existing token on mount
+  // Check for existing token on mount - runs only once
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token')
-      if (token) {
+      const savedToken = localStorage.getItem('token')
+
+      if (savedToken) {
         try {
           const data = await authAPI.getMe()
           setUser(data.user)
         } catch (error) {
-          clearToken()
+          // Only remove token if it's actually invalid (not network error)
+          if (error.message === 'invalid-token' || error.message === 'no-token') {
+            removeToken()
+          }
         }
       }
       setLoading(false)
     }
 
     checkAuth()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const register = async (username, email, password) => {
     const data = await authAPI.register(username, email, password)
@@ -42,8 +48,13 @@ export const AuthProvider = ({ children }) => {
   }
 
   const logout = () => {
-    clearToken()
+    removeToken()
     setUser(null)
+  }
+
+  // Increment wins count locally (after winning a game)
+  const incrementWins = () => {
+    setUser(prev => prev ? { ...prev, wins: (prev.wins || 0) + 1 } : prev)
   }
 
   return (
@@ -53,7 +64,8 @@ export const AuthProvider = ({ children }) => {
       isAuthenticated: !!user,
       register,
       login,
-      logout
+      logout,
+      incrementWins
     }}>
       {children}
     </AuthContext.Provider>

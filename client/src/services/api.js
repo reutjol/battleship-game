@@ -1,9 +1,29 @@
 const API_URL = 'http://localhost:3001/api'
 
-const getToken = () => localStorage.getItem('token')
+const getToken = () => {
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) return null
+
+    // Try to parse as JSON (new format)
+    try {
+      return JSON.parse(token)
+    } catch {
+      // Return raw token (old format)
+      return token
+    }
+  } catch {
+    return null
+  }
+}
 
 const authFetch = async (endpoint, options = {}) => {
   const token = getToken()
+
+  // Debug log
+  if (endpoint === '/auth/me') {
+    console.log('Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'null')
+  }
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
@@ -36,7 +56,9 @@ export const authAPI = {
       body: JSON.stringify({ email, password })
     }),
 
-  getMe: () => authFetch('/auth/me')
+  getMe: () => authFetch('/auth/me'),
+
+  getLeaderboard: (limit = 10) => authFetch(`/auth/leaderboard?limit=${limit}`)
 }
 
 export const setToken = (token) => {

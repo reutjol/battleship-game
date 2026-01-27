@@ -6,7 +6,6 @@ const { Server } = require('socket.io')
 const cors = require('cors')
 const connectDB = require('./config/db')
 const authRoutes = require('./routes/auth')
-const banterRoutes = require('./routes/banter')
 const gameService = require('./services/gameService')
 const { registerHandlers } = require('./handlers/socketHandlers')
 
@@ -19,7 +18,6 @@ app.use(express.json())
 
 // Routes
 app.use('/api/auth', authRoutes)
-app.use('/api/ai', banterRoutes)
 
 // Socket.IO setup
 const httpServer = createServer(app)

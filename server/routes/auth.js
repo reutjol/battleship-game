@@ -26,7 +26,7 @@ router.post('/register', async (req, res) => {
     await user.save()
 
     // Generate token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' })
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' })
 
     res.status(201).json({
       token,
@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' })
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' })
 
     res.json({
       token,
@@ -74,6 +74,23 @@ router.post('/login', async (req, res) => {
     })
   } catch (error) {
     console.error('Login error:', error)
+    res.status(500).json({ error: 'server-error' })
+  }
+})
+
+// Get leaderboard (top players by wins)
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10
+
+    const players = await User.find({ wins: { $gt: 0 } })
+      .sort({ wins: -1 })
+      .limit(limit)
+      .select('username wins -_id')
+
+    res.json({ players })
+  } catch (error) {
+    console.error('Leaderboard error:', error)
     res.status(500).json({ error: 'server-error' })
   }
 })
