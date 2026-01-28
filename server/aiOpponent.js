@@ -3,9 +3,7 @@ const BOARD_SIZE = 10;
 // AI state per game room
 const aiStates = new Map();
 
-/**
- * Get or create AI state for a room
- */
+// Get or create AI state for a room
 function getOrCreateState(roomCode) {
   if (!aiStates.has(roomCode)) {
     aiStates.set(roomCode, {
@@ -16,9 +14,7 @@ function getOrCreateState(roomCode) {
   return aiStates.get(roomCode);
 }
 
-/**
- * Check if a cell is a valid target (not already attacked)
- */
+// Check if a cell is a valid target (not already attacked)
 function isValidTarget(board, row, col) {
   if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE) {
     return false;
@@ -27,9 +23,7 @@ function isValidTarget(board, row, col) {
   return cell.status === 'empty' || cell.status === 'ship';
 }
 
-/**
- * Get the ends of the current hit chain in a direction
- */
+// Get the ends of the current hit chain in a direction
 function getChainEnds(hitCells, direction) {
   if (hitCells.length === 0) return [];
 
@@ -65,9 +59,7 @@ function getChainEnds(hitCells, direction) {
   return targets;
 }
 
-/**
- * Get all adjacent cells for a hit
- */
+// Get all adjacent cells for a hit
 function getAdjacentTargets(row, col) {
   return [
     { row: row - 1, col },  // up
@@ -77,9 +69,7 @@ function getAdjacentTargets(row, col) {
   ];
 }
 
-/**
- * Hunt Mode: Use checkerboard pattern for efficient searching
- */
+// Hunt Mode: Use checkerboard pattern for efficient searching
 function getHuntMove(board) {
   const huntCells = [];
 
@@ -107,9 +97,7 @@ function getHuntMove(board) {
   return huntCells[Math.floor(Math.random() * huntCells.length)];
 }
 
-/**
- * Target Mode: Follow up on hits to sink the ship
- */
+// Target Mode: Follow up on hits to sink the ship
 function getTargetMove(roomCode, board) {
   const state = getOrCreateState(roomCode);
 
@@ -150,10 +138,8 @@ function getTargetMove(roomCode, board) {
   return null;
 }
 
-/**
- * Main AI move function
- */
-function getAIMove(roomCode, opponentBoard) {
+// Main AI move function
+  function getAIMove(roomCode, opponentBoard) {
   const state = getOrCreateState(roomCode);
 
   console.log(`AI State: ${state.hitCells.length} unsunk hits, direction: ${state.direction}`);
@@ -173,9 +159,7 @@ function getAIMove(roomCode, opponentBoard) {
   return huntMove;
 }
 
-/**
- * Update AI state after an attack result
- */
+// Update AI state after an attack result
 function updateAIState(roomCode, row, col, result) {
   const state = getOrCreateState(roomCode);
 
@@ -229,9 +213,7 @@ function updateAIState(roomCode, row, col, result) {
   }
 }
 
-/**
- * Clear AI state for a room
- */
+// Clear AI state for a room
 function clearAIState(roomCode) {
   aiStates.delete(roomCode);
 }

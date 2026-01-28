@@ -163,16 +163,49 @@ const processGameAttack = (roomCode, attackerId, row, col) => {
   }
 }
 
+// Count how many ships a player has sunk (on opponent's board)
+const countSunkShips = (ships) => {
+  return ships.filter(ship => ship.sunk).length
+}
+
+// Get disconnect result - returns winner if remaining player was ahead
+const getDisconnectResult = (roomCode, disconnectedPlayerId) => {
+  const game = games.get(roomCode)
+  if (!game || game.players.length < 2) return null
+
+  const disconnectedPlayer = game.players.find(p => p.id === disconnectedPlayerId)
+  const remainingPlayer = game.players.find(p => p.id !== disconnectedPlayerId)
+
+  if (!disconnectedPlayer || !remainingPlayer) return null
+
+  // Count sunk ships - ships sunk ON each player's board
+  const remainingPlayerSunkShips = countSunkShips(remainingPlayer.ships) // ships the disconnected player sunk
+  const disconnectedPlayerSunkShips = countSunkShips(disconnectedPlayer.ships) // ships the remaining player sunk
+
+  // Remaining player wins only if they sunk MORE ships than opponent
+  if (disconnectedPlayerSunkShips > remainingPlayerSunkShips) {
+    return {
+      winner: remainingPlayer.id,
+      remainingPlayerScore: disconnectedPlayerSunkShips,
+      disconnectedPlayerScore: remainingPlayerSunkShips
+    }
+  }
+
+  // No winner if tied or remaining player was losing
+  return null
+}
+
 const handleDisconnect = (playerId) => {
   const roomCode = playerToGame.get(playerId)
 
   if (roomCode) {
+    const result = getDisconnectResult(roomCode, playerId)
     playerToGame.delete(playerId)
     games.delete(roomCode)
-    return roomCode
+    return { roomCode, ...result }
   }
 
-  return null
+  return { roomCode: null }
 }
 
 module.exports = {

@@ -124,12 +124,17 @@ export const GameProvider = ({ children }) => {
     })
 
     // Opponent disconnected
-    socket.on('opponent-disconnected', () => {
+    socket.on('opponent-disconnected', (data) => {
       if (timerRef.current) {
         clearInterval(timerRef.current)
       }
       setTimeLeft(null)
-      setWinner('opponent-left')
+      // If you were winning when opponent left, you get the win
+      if (data?.youWin) {
+        setWinner('you-by-disconnect')
+      } else {
+        setWinner('opponent-left')
+      }
       setGamePhase('finished')
     })
 

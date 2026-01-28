@@ -29,7 +29,7 @@ const GamePage = () => {
 
   // Increment wins when player wins (only once)
   useEffect(() => {
-    if (winner === 'you' && !hasIncrementedWins.current) {
+    if ((winner === 'you' || winner === 'you-by-disconnect') && !hasIncrementedWins.current) {
       hasIncrementedWins.current = true
       incrementWins()
     }
@@ -88,6 +88,7 @@ const GamePage = () => {
         <div className="game-over">
           <h2>
             {winner === 'you' && '🎉 You Win!'}
+            {winner === 'you-by-disconnect' && '🎉 You Win! (Opponent fled while losing)'}
             {winner === 'opponent' && 'You Lost'}
             {winner === 'opponent-left' && 'Opponent Left the Game'}
           </h2>

@@ -126,21 +126,51 @@ function registerHandlers(io, socket) {
     console.log('Player left game:', socket.id, 'room:', roomCode)
     gameService.clearTurnTimer(roomCode)
     aiOpponent.clearAIState(roomCode)
-    socket.to(roomCode).emit('opponent-disconnected')
+
+    const result = gameManager.handleDisconnect(socket.id)
+
+    // If remaining player was winning, give them the win
+    if (result.winner) {
+      console.log(`Player ${result.winner} wins by disconnect (${result.remainingPlayerScore}-${result.disconnectedPlayerScore})`)
+      gameService.updateWins(result.winner)
+      socket.to(roomCode).emit('opponent-disconnected', {
+        youWin: true,
+        reason: 'opponent-left-losing'
+      })
+    } else {
+      socket.to(roomCode).emit('opponent-disconnected', {
+        youWin: false,
+        reason: 'opponent-left'
+      })
+    }
+
     socket.leave(roomCode)
-    gameManager.handleDisconnect(socket.id)
     gameService.removeUserMapping(socket.id)
   })
 
   // Player disconnected
   socket.on('disconnect', () => {
     console.log('Player disconnected:', socket.id)
-    const roomCode = gameManager.handleDisconnect(socket.id)
+    const result = gameManager.handleDisconnect(socket.id)
 
-    if (roomCode) {
-      gameService.clearTurnTimer(roomCode)
-      aiOpponent.clearAIState(roomCode)
-      io.to(roomCode).emit('opponent-disconnected')
+    if (result.roomCode) {
+      gameService.clearTurnTimer(result.roomCode)
+      aiOpponent.clearAIState(result.roomCode)
+
+      // If remaining player was winning, give them the win
+      if (result.winner) {
+        console.log(`Player ${result.winner} wins by disconnect (${result.remainingPlayerScore}-${result.disconnectedPlayerScore})`)
+        gameService.updateWins(result.winner)
+        io.to(result.roomCode).emit('opponent-disconnected', {
+          youWin: true,
+          reason: 'opponent-left-losing'
+        })
+      } else {
+        io.to(result.roomCode).emit('opponent-disconnected', {
+          youWin: false,
+          reason: 'opponent-left'
+        })
+      }
     }
     gameService.removeUserMapping(socket.id)
   })

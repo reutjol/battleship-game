@@ -44,7 +44,7 @@ function AppRoutes() {
             <GamePage />
           </ProtectedRoute>
         } />
-          <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   );
