@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
+import { createContext, useContext, useState, useEffect, useRef } from 'react'
 import socket from '../services/socket'
 import { useSocket } from '../hooks'
 
@@ -22,6 +22,8 @@ export const GameProvider = ({ children }) => {
   const [isAIGame, setIsAIGame] = useState(false)
   const [aiThinking, setAIThinking] = useState(false)
   const timerRef = useRef(null)
+  const banterTimeoutRef = useRef(null)
+  const aiThinkingTimeoutRef = useRef(null)
 
   useEffect(() => {
     // Game created
@@ -57,56 +59,31 @@ export const GameProvider = ({ children }) => {
 
     // Attack result
     socket.on('attack-result', (data) => {
-      console.log('Attack result:', {
-        hit: data.hit,
-        nextTurn: data.nextTurn,
-        mySocketId: socket.id,
-        isMyTurnNext: data.nextTurn === socket.id
-      })
       const isMyAttack = data.attacker === socket.id
 
+      // Helper to update board with attack result
+      const applyAttackToBoard = (board, includeShipIndex) => {
+        const next = board.map(row => row.map(cell => ({ ...cell })))
+
+        if (data.sunk && data.sunkCells) {
+          data.sunkCells.forEach(({ row, col }) => {
+            next[row][col].status = 'sunk'
+            if (includeShipIndex) next[row][col].shipIndex = data.shipIndex
+          })
+        } else if (data.hit) {
+          next[data.row][data.col].status = 'hit'
+          if (includeShipIndex) next[data.row][data.col].shipIndex = data.shipIndex
+        } else {
+          next[data.row][data.col].status = 'miss'
+        }
+
+        return next
+      }
+
       if (isMyAttack) {
-        // Update opponent board
-        setOpponentBoard(prev => {
-          const next = prev.map(row => row.map(cell => ({ ...cell })))
-
-          if (data.sunk && data.sunkCells) {
-            // Ship sunk - mark all cells as sunk
-            data.sunkCells.forEach(({ row, col }) => {
-              next[row][col].status = 'sunk'
-              next[row][col].shipIndex = data.shipIndex
-            })
-          } else if (data.hit) {
-            // Hit but not sunk
-            next[data.row][data.col].status = 'hit'
-            next[data.row][data.col].shipIndex = data.shipIndex
-          } else {
-            // Miss
-            next[data.row][data.col].status = 'miss'
-          }
-
-          return next
-        })
+        setOpponentBoard(prev => applyAttackToBoard(prev, true))
       } else {
-        // Update my board
-        setMyBoard(prev => {
-          const next = prev.map(row => row.map(cell => ({ ...cell })))
-
-          if (data.sunk && data.sunkCells) {
-            // Ship sunk - mark all cells as sunk
-            data.sunkCells.forEach(({ row, col }) => {
-              next[row][col].status = 'sunk'
-            })
-          } else if (data.hit) {
-            // Hit but not sunk
-            next[data.row][data.col].status = 'hit'
-          } else {
-            // Miss
-            next[data.row][data.col].status = 'miss'
-          }
-
-          return next
-        })
+        setMyBoard(prev => applyAttackToBoard(prev, false))
       }
 
       // Update turn
@@ -141,7 +118,8 @@ export const GameProvider = ({ children }) => {
     // AI Banter
     socket.on('banter', (data) => {
       setBanter(data.line)
-      setTimeout(() => setBanter(null), 3000)
+      if (banterTimeoutRef.current) clearTimeout(banterTimeoutRef.current)
+      banterTimeoutRef.current = setTimeout(() => setBanter(null), 3000)
     })
 
     // Turn timer started
@@ -178,7 +156,8 @@ export const GameProvider = ({ children }) => {
     // AI is thinking
     socket.on('ai-thinking', (data) => {
       setAIThinking(true)
-      setTimeout(() => setAIThinking(false), data.delay)
+      if (aiThinkingTimeoutRef.current) clearTimeout(aiThinkingTimeoutRef.current)
+      aiThinkingTimeoutRef.current = setTimeout(() => setAIThinking(false), data.delay)
     })
 
     return () => {
@@ -192,9 +171,9 @@ export const GameProvider = ({ children }) => {
       socket.off('turn-timer-start')
       socket.off('game-over-timeout')
       socket.off('ai-thinking')
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
+      if (timerRef.current) clearInterval(timerRef.current)
+      if (banterTimeoutRef.current) clearTimeout(banterTimeoutRef.current)
+      if (aiThinkingTimeoutRef.current) clearTimeout(aiThinkingTimeoutRef.current)
     }
   }, [])
 
@@ -247,9 +226,10 @@ export const GameProvider = ({ children }) => {
     setTimeLeft(null)
     setIsAIGame(false)
     setAIThinking(false)
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-    }
+    setBanter(null)
+    if (timerRef.current) clearInterval(timerRef.current)
+    if (banterTimeoutRef.current) clearTimeout(banterTimeoutRef.current)
+    if (aiThinkingTimeoutRef.current) clearTimeout(aiThinkingTimeoutRef.current)
   }
 
   return (

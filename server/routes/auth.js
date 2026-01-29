@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/User')
 
 const router = express.Router()
+
+if (!process.env.JWT_SECRET) {
+  console.warn('WARNING: JWT_SECRET not set in environment variables. Using insecure default.')
+}
 const JWT_SECRET = process.env.JWT_SECRET || 'battleship-secret-key-change-in-production'
 
 // Register

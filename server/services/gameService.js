@@ -27,8 +27,6 @@ function startTurnTimer(roomCode, currentPlayerId) {
   clearTurnTimer(roomCode)
 
   const timerId = setTimeout(() => {
-    console.log(`Time's up for player ${currentPlayerId} in room ${roomCode}`)
-
     const game = gameManager.games.get(roomCode)
     if (game && game.players) {
       const winner = game.players.find(p => p.id !== currentPlayerId)
@@ -66,7 +64,6 @@ function updateWins(socketId) {
   const userId = socketToUser.get(socketId)
   if (userId) {
     User.findByIdAndUpdate(userId, { $inc: { wins: 1 } })
-      .then(() => console.log('Updated wins for user:', userId))
       .catch(err => console.error('Failed to update wins:', err))
   }
 }
@@ -156,8 +153,6 @@ function handleBanterAfterAttack(socket, roomCode, result) {
   if (shouldTriggerBanter) {
     fetchBanter(banterEvent, streakCount).then(line => {
       if (line) {
-        console.log(`Banter [${banterEvent}]:`, line)
-
         if (banterEvent === 'win' || banterEvent === 'sunk' || banterEvent === 'miss_streak') {
           socket.emit('banter', { line })
         } else if (banterEvent === 'lose') {
@@ -203,8 +198,6 @@ function executeAITurn(socketIO, roomCode, humanPlayerId) {
     return
   }
 
-  console.log(`AI attacking: ${move.row}, ${move.col}`)
-
   // Process AI attack
   const result = gameManager.processAttack(roomCode, gameManager.AI_PLAYER_ID, move.row, move.col)
 
@@ -231,7 +224,6 @@ function executeAITurn(socketIO, roomCode, humanPlayerId) {
   })
 
   if (result.winner) {
-    console.log('AI game winner:', result.winner)
     clearTurnTimer(roomCode)
     aiOpponent.clearAIState(roomCode)
 

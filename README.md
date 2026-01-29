@@ -20,16 +20,6 @@ npm install
 # Install client
 cd ../client
 npm install
-```
-
-### Environment Variables
-
-Create `.env` file in `server` folder:
-```env
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-GEMINI_API_KEY=your_gemini_api_key  # Optional - for AI banter
-```
 
 ### Run the App
 

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3001/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 const getToken = () => {
   try {
@@ -19,11 +19,6 @@ const getToken = () => {
 
 const authFetch = async (endpoint, options = {}) => {
   const token = getToken()
-
-  // Debug log
-  if (endpoint === '/auth/me') {
-    console.log('Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'null')
-  }
 
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,

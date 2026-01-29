@@ -111,12 +111,10 @@ function getTargetMove(roomCode, board) {
     const validTargets = targets.filter(t => isValidTarget(board, t.row, t.col));
 
     if (validTargets.length > 0) {
-      console.log(`AI: Following direction ${state.direction}`);
       return validTargets[0];
     }
 
     // Direction is blocked - reset and try adjacent
-    console.log(`AI: Direction ${state.direction} blocked, resetting`);
     state.direction = null;
   }
 
@@ -125,66 +123,50 @@ function getTargetMove(roomCode, board) {
     const adjacent = getAdjacentTargets(hit.row, hit.col);
     for (const adj of adjacent) {
       if (isValidTarget(board, adj.row, adj.col)) {
-        console.log(`AI: Trying adjacent to hit at (${hit.row},${hit.col})`);
         return adj;
       }
     }
   }
 
   // No valid adjacent cells - clear state (shouldn't happen normally)
-  console.log(`AI: No valid targets for ${state.hitCells.length} hits, clearing`);
   state.hitCells = [];
   state.direction = null;
   return null;
 }
 
 // Main AI move function
-  function getAIMove(roomCode, opponentBoard) {
+function getAIMove(roomCode, opponentBoard) {
   const state = getOrCreateState(roomCode);
-
-  console.log(`AI State: ${state.hitCells.length} unsunk hits, direction: ${state.direction}`);
 
   // ALWAYS check for unsunk hits first
   if (state.hitCells.length > 0) {
     const targetMove = getTargetMove(roomCode, opponentBoard);
     if (targetMove) {
-      console.log(`AI Target: (${targetMove.row},${targetMove.col})`);
       return targetMove;
     }
   }
 
   // Hunt mode
-  const huntMove = getHuntMove(opponentBoard);
-  console.log(`AI Hunt: (${huntMove?.row},${huntMove?.col})`);
-  return huntMove;
+  return getHuntMove(opponentBoard);
 }
 
 // Update AI state after an attack result
 function updateAIState(roomCode, row, col, result) {
   const state = getOrCreateState(roomCode);
 
-  console.log(`AI Update: (${row},${col}) hit=${result.hit} sunk=${result.sunk}`);
-
   if (result.hit) {
     if (result.sunk) {
       // Ship sunk! Remove ALL cells of this ship from hitCells
-      console.log(`AI: Ship sunk! sunkCells:`, result.sunkCells);
-
       if (result.sunkCells && result.sunkCells.length > 0) {
         const sunkSet = new Set(result.sunkCells.map(c => `${c.row},${c.col}`));
-        const before = state.hitCells.length;
         state.hitCells = state.hitCells.filter(c => !sunkSet.has(`${c.row},${c.col}`));
-        console.log(`AI: Removed ${before - state.hitCells.length} cells, ${state.hitCells.length} remaining`);
       }
 
       // ALWAYS reset direction after sinking - remaining hits might be different ship
       state.direction = null;
-
-      console.log(`AI: After sink - ${state.hitCells.length} unsunk hits remaining`);
     } else {
       // Hit but not sunk - add to tracking
       state.hitCells.push({ row, col });
-      console.log(`AI: Added hit, total: ${state.hitCells.length} hits`);
 
       // Try to detect direction if we have 2+ adjacent hits
       if (state.hitCells.length >= 2 && !state.direction) {
@@ -196,20 +178,16 @@ function updateAIState(roomCode, row, col, result) {
 
             if (h1.row === h2.row && Math.abs(h1.col - h2.col) === 1) {
               state.direction = 'horizontal';
-              console.log(`AI: Detected HORIZONTAL direction`);
               return;
             }
             if (h1.col === h2.col && Math.abs(h1.row - h2.row) === 1) {
               state.direction = 'vertical';
-              console.log(`AI: Detected VERTICAL direction`);
               return;
             }
           }
         }
       }
     }
-  } else {
-    console.log(`AI: Miss at (${row},${col})`);
   }
 }
 

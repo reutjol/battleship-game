@@ -1,4 +1,3 @@
-import React from 'react'
 import { PiCrosshairFill } from "react-icons/pi"
 import { SiFireship } from "react-icons/si"
 import { FaSkull } from "react-icons/fa6"
@@ -32,7 +31,7 @@ const Board = ({
         className="board-grid"
         style={{ gridTemplateColumns: `repeat(${columns}, minmax(30px, 1fr))` }}
       >
-        {cells.map((row, rIdx) =>
+        {cells?.map((row, rIdx) =>
           row.map((cell, cIdx) => {
             const extraClass = getCellClassName ? getCellClassName(cell) : ''
             return (

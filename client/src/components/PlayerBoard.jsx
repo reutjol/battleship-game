@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import { useCallback } from 'react'
 import Board from './Board'
 
 const PlayerBoard = ({ board }) => {

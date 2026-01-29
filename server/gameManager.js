@@ -154,8 +154,6 @@ const processGameAttack = (roomCode, attackerId, row, col) => {
   const nextTurn = winner ? null : (result.hit ? attackerId : opponent.id)
   game.currentTurn = nextTurn
 
-  console.log('Turn logic:', { hit: result.hit, attackerId, opponentId: opponent.id, nextTurn })
-
   return {
     ...result,
     nextTurn,
@@ -178,16 +176,16 @@ const getDisconnectResult = (roomCode, disconnectedPlayerId) => {
 
   if (!disconnectedPlayer || !remainingPlayer) return null
 
-  // Count sunk ships - ships sunk ON each player's board
-  const remainingPlayerSunkShips = countSunkShips(remainingPlayer.ships) // ships the disconnected player sunk
-  const disconnectedPlayerSunkShips = countSunkShips(disconnectedPlayer.ships) // ships the remaining player sunk
+  // Calculate scores: how many ships each player successfully sunk
+  const remainingPlayerScore = countSunkShips(disconnectedPlayer.ships) // ships the remaining player sunk
+  const disconnectedPlayerScore = countSunkShips(remainingPlayer.ships) // ships the disconnected player sunk
 
   // Remaining player wins only if they sunk MORE ships than opponent
-  if (disconnectedPlayerSunkShips > remainingPlayerSunkShips) {
+  if (remainingPlayerScore > disconnectedPlayerScore) {
     return {
       winner: remainingPlayer.id,
-      remainingPlayerScore: disconnectedPlayerSunkShips,
-      disconnectedPlayerScore: remainingPlayerSunkShips
+      remainingPlayerScore,
+      disconnectedPlayerScore
     }
   }
 
