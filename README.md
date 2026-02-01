@@ -4,12 +4,6 @@ A real-time multiplayer Battleship game built with React and Node.js.
 
 ---
 
-## Getting Started
-
-### Prerequisites
-- Node.js (v20+)
-- MongoDB Atlas or local MongoDB
-
 ### Installation
 
 ```bash
