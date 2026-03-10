@@ -1,0 +1,14 @@
+# flyctl launch added from .gitignore
+# Environment variables
+**\.env
+**\.env.local
+**\.env.*.local
+
+# Dependencies
+**\node_modules
+
+# Logs
+**\logs
+**\*.log
+**\npm-debug.log*
+fly.toml

@@ -22,7 +22,7 @@ app.use('/api/auth', authRoutes)
 // Socket.IO setup
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
-  cors: { origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }
+  cors: { origin: process.env.CORS_ORIGIN || ['http://localhost:5173', 'http://localhost:5174'] }
 })
 
 // Initialize game service with io
